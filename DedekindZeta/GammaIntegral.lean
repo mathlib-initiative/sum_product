@@ -175,7 +175,6 @@ theorem gammaReal_eq {s : ℂ} (hs : 0 < s.re) :
     norm_num
   rw [hgauss]
   have hcomp := mellin_comp_rpow (fun u => (Real.exp (-Real.pi * u) : ℂ)) s 2
-  simp only at hcomp
   rw [hcomp, show (s / ((2 : ℝ) : ℂ)) = s / 2 by push_cast; ring]
   -- Step 5: the one-variable Gaussian Mellin transform is `(1/π)^{s/2} Γ(s/2)`.
   have hmf : mellin (fun u => (Real.exp (-Real.pi * u) : ℂ)) (s / 2)

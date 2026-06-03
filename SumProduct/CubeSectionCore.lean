@@ -46,7 +46,7 @@ theorem measurableSet_unitCube (n : ℕ) : MeasurableSet (unitCube n) := by
   exact isClosed_Icc.measurableSet
 
 theorem measurable_coordSum (n : ℕ) : Measurable (coordSum n) := by
-  simpa [coordSum] using Finset.measurable_sum Finset.univ fun i _ => measurable_pi_apply i
+  exact Finset.measurable_sum Finset.univ fun i _ => measurable_pi_apply i
 
 theorem cubeSection_one_eq_unitCube_inter_sum (n : ℕ) :
     cubeSection (Fin n) 1 =
@@ -244,11 +244,10 @@ theorem measurable_cubeSumLawSuccDensity (n : ℕ) :
     Measurable (cubeSumLawSuccDensity n) := by
   let F : ℝ → ℝ → ℝ≥0∞ := fun z x =>
     (Set.Icc (-1 : ℝ) 1).indicator (fun _ => (2 : ℝ≥0∞)⁻¹) (z - x)
-  have hF : Measurable (Function.uncurry F) := by
-    simpa [F, Function.uncurry] using
-      ((measurable_const.indicator measurableSet_Icc).comp
-        (measurable_fst.sub measurable_snd))
-  simpa [cubeSumLawSuccDensity, F] using hF.lintegral_prod_right
+  have hF : Measurable (Function.uncurry F) :=
+    (measurable_const.indicator measurableSet_Icc).comp
+      (measurable_fst.sub measurable_snd)
+  exact hF.lintegral_prod_right
 
 theorem cubeSumLawSuccDensity_lintegral_ne_top (n : ℕ) :
     (∫⁻ x : ℝ, cubeSumLawSuccDensity n x) ≠ ∞ := by

@@ -3190,12 +3190,10 @@ theorem exists_isMellinPair_radialTheta (𝔞 : Ideal (𝓞 K)) (hne : 𝔞 ≠ 
       hfe := ?_ }
   · -- continuity of `radialTheta K 𝔞 = orbitTheta K 𝔞 + V` on `Ioi 0`
     -- (`orbitTheta` is only continuous on `Ioi 0`; see `continuousOn_orbitTheta`).
-    simpa only [radialTheta] using
-      (continuousOn_orbitTheta K 𝔞).add continuousOn_const
+    exact (continuousOn_orbitTheta K 𝔞).add continuousOn_const
   · -- continuity of `radialThetaDual K 𝔞 = orbitThetaFrac K (dualIdeal K 𝔞) + V`
     --  on `Ioi 0` (`continuousOn_orbitThetaFrac`).
-    simpa only [radialThetaDual] using
-      (continuousOn_orbitThetaFrac K (Theta.dualIdeal K 𝔞)).add continuousOn_const
+    exact (continuousOn_orbitThetaFrac K (Theta.dualIdeal K 𝔞)).add continuousOn_const
   · -- `(covolume K 𝔞)⁻¹ ≠ 0`: reduces to `covolume K 𝔞 ≠ 0`, i.e.
     -- `(absNorm 𝔞 : ℝ) ≠ 0` (`Ideal.absNorm_eq_zero_iff`, `𝔞 ≠ 0`) and
     -- `√|discr K| ≠ 0` (`NumberField.discr_ne_zero`).
