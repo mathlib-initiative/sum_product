@@ -1,0 +1,53 @@
+schema_version: 1
+id: formalize-lemma-4-1
+title: "Formalize Lemma 4.1 (the construction A = G·P over 𝒪_K)"
+status: completed
+depends_on:
+  - formalize-section-3-lemmas
+summary: DONE — `lemma_4_1` is proved from the §3 count lemmas and Lemma 3.1, which are now theorems
+description: |
+  Prerequisite for [formalize-theorem-1-1]: discharge the **Lemma 4.1** leaf
+  (`SumProduct.lemma_4_1` in the `SumProduct` library).
+
+  **Statement (formalized and proved).** There is an absolute
+  constant `c > 0` such that for every totally real number field `K` of degree
+  `d ≥ 2` and all `X, Y ≥ 2`, there is `A ⊆ 𝒪_K` with
+  - `(cXY)^d / (Y·Δ_K^{3/2}) ≤ |A| ≤ (XY/c)^d`,
+  - `|A·A| ≤ c^{-d} Y^{1-d} Δ_K² |A|²`, and
+  - `|A + A| ≤ (e^Y/c)^d Δ_K^{1/2} |A|`,
+
+  where `Δ_K = |discr K|`.
+
+  BUILDING BLOCKS (all PROVED in the `SumProduct` library):
+  - `boxAdd`/`boxMult` (the boxes, finiteness proved); `mem_boxAdd`/`mem_boxMult`.
+  - `boxAdd_add`, `boxMult_mul` (boxes add / multiply).
+  - `place_natCast` (`w (n : K) = n`), `place_translate_bound` (elements of
+    `n + B⁺(r)` have every place in `[n−r, n+r]`).
+  - **`directness`** — THE KEY STEP: if `g₁(n+b₁) = g₂(n+b₂)` with `bᵢ ∈ B⁺(r)`
+    and `(n+r)/(n−r) < φ`, then `g₁ = g₂ ∧ b₁ = b₂` (via `unit_separation`).
+    This gives `|A| = |G|·|P|` for `A = G·(n + B⁺(r))`.
+
+  The proof assembles `A = (boxMult Y).image (↑·) * P` with
+  `P = (n : 𝒪K) + boxAdd (εX)`, uses `directness` +
+  `Finset.card_image`/`card_product` for `|A| = |G||P|`, bounds `|A·A|` via
+  `boxMult_mul` + `|PP| ≤ |P|²`, bounds `|A+A|` via `place_translate_bound`/
+  `boxAdd_add` into `boxAdd (4Xe^Y)`, then combines with the proved count lemmas
+  (`lattice_count_add`, `lattice_count_mult`) and `regulator_le_discr`, choosing
+  the absolute constants `c`, `ε`.
+
+  **Proof to formalize (paper §4).** Take `G = B^×(Y)` (a box in the unit
+  lattice) and `P = X + B⁺(εX)` (a box in the additive lattice), and `A = G·P`.
+  The key steps are:
+  1. Size of `G` from the multiplicative lattice-point count (Lemma 3.7) and the
+     regulator bound (Lemma 3.1, `regulator_le_discr`).
+  2. Size of `P` from the additive lattice-point count (Lemma 3.5).
+  3. Directness `|A| = |G|·|P|`: if `u₁p₁ = u₂p₂` then `p₁/p₂` has all
+     embeddings near `1`, so by the unit-separation Lemma 3.6 (`lem-unitsep`)
+     `u₁ = u₂`.
+  4. `|A·A| ≤ |G·G|·|P·P|` with `G·G ⊆ B^×(2Y)` and the trivial `|P·P| ≤ |P|²`.
+  5. `A + A ⊆ B⁺(4Xe^Y)` since every element of `A` has all embeddings
+     `≤ 2Xe^Y`, then the additive count again.
+
+  **Note.** This is where the cardinality bookkeeping for `Finset` pointwise sets
+  in `𝒪_K` lives. The conclusion is currently stated with a classical
+  `DecidableEq (𝒪 K)` instance (`open scoped Classical`).

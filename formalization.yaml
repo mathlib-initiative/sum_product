@@ -1,0 +1,572 @@
+# formalization.yaml (v0.3): repo-root metadata for formalization projects.
+# Schema: https://github.com/mathlib-initiative/formalization.yaml
+
+version: "v0.3"
+
+# project - the formalization itself (not the source).
+project:
+  name: "The sum-product conjecture is false for real numbers (Lean 4 / Mathlib formalization)"
+  # Individual names are Formal Frontier Team members directly involved in the autoformalization,
+  # listed alphabetically by last name.
+  authors:
+    - "Formal Frontier Team"
+    - "Matthew Ballard"
+    - "Fabian Glöckle"
+    - "Bhavik Mehta"
+    - "Adam Topaz"
+  license: "Apache-2.0"
+
+# sources - what was formalized. List of papers/textbooks/blueprints.
+sources:
+  # Primary target: the paper whose Theorem 1.1 is formalized as `sumProduct_false`.
+  - title: "The sum-product conjecture is false for real numbers"
+    authors: ["Thomas F. Bloom", "Will Sawin", "Carl Schildkraut", "Dmitrii Zhelezov"]
+    id: "arXiv:2605.28781v1"
+    type: "preprint"
+    license: "CC-BY-4.0"
+    author_contacted: "yes"     # Thomas F. Bloom and Will Sawin were contacted.
+    prior_work: ""              # no earlier formalization built upon
+  # Secondary source: bibliographic source for the analytic Dedekind-zeta background used by the
+  # in-repository support library.
+  - title: "Algebraic Number Theory"
+    authors: ["Jürgen Neukirch"]
+    id: "ISBN:978-3-540-65399-8"
+    type: "book"
+    license: "all-rights-reserved"
+    author_contacted: "no"          # author deceased (1997)
+    prior_work: ""                  # no earlier formalization built upon
+
+# project status
+status:
+  scope: >-
+    The headline real sum-product result (paper Theorem 1.1,
+    `SumProduct.sumProduct_false`) and its full Lean proof, conditional on the explicit
+    Martinet-towers hypothesis `SumProduct.MartinetTotallyRealTowers` (paper Theorem 3.2).
+    The paper's "many sums and products" extension is not formalized. See
+    `fidelity.divergences` for the details.
+  sorry_count: 0
+  sorry_in_definitions: 0
+  # `#print axioms SumProduct.sumProduct_false`
+  axioms:
+    # Lean/Mathlib standard axioms
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+    # The sole classical mathematical input not (yet) in Mathlib is stated faithfully as the
+    # explicit theorem hypothesis `SumProduct.MartinetTotallyRealTowers`, not as a Lean axiom.
+    # The development's two analytic inputs are proved theorems (so they do not appear in
+    # `#print axioms sumProduct_false`):
+    #  • the per-ideal residue inequality `partialCompletedZetaResidue_le` (the sole analytic input
+    #    behind Lemma 3.1) is proved in `SumProduct.PartialZetaMellin` using the in-repository
+    #    `DedekindZeta` library (Hecke theta–Mellin theory, theta inversion law) together with
+    #    Mathlib's analytic class number formula `NumberField.dedekindZeta_residue` (which pins the pole residue to 2^rR/w).
+    #    `SumProduct.RegulatorBound` applies these inequalities to class representatives and sums →
+    #    dedekindZeta_completed_ge_residue → (totally real) dedekindZeta_completed_residue_le →
+    #    dedekind_residue_le (with the proved Euler bound ζ_K(2)≤2^d) → Lemma 3.1 regulator_le_discr.
+    #  • eq. (3.1) (`hensley_unitBox_volume`, Hensley / Ball–Vaaler cube-slice volume bound) is proved
+    #    in `SumProduct.CubeSectionHensley`.
+  main_results:
+    - declaration: "SumProduct.sumProduct_false"
+      file: "SumProduct/Construction.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+      comparator_config: "comparator/sum_product_false.json"
+      literature_dependencies:
+        - statement: >-
+            Martinet's Theorem 3.2 on asymptotically good totally real towers, formalized as the
+            explicit theorem hypothesis `SumProduct.MartinetTotallyRealTowers`.
+          source: "The sum-product conjecture is false for real numbers"
+
+# how it was produced
+automation:
+  methods:
+    - method: "agent"
+      models: ["claude-opus-4-8"]
+      framework: "Claude Code"
+      tool_setup: >-
+        Completely stock Claude Code (versions 2.1.156–2.1.159 over the project),
+        no custom agents, plugins, or harness modifications. Single model throughout
+        this phase: Claude Opus 4.8 (claude-opus-4-8) run at maximum reasoning effort.
+      cost:
+        wall_time: "~2 days (2026-05-30 to 2026-05-31)"
+        spend_usd: "none — subscription-based usage"
+        hardware: "API-only"
+      notes: >-
+        Interactive, human-directed agent sessions (Claude Code). The mathematician
+        set the goals, fixed the stable top-level statements, and reviewed/steered;
+        the agent stated and proved the lemmas in Lean. Statement-auditing was done in
+        a separate session before proof work began.
+      prompting_notes: >-
+        Freeform observations on the actual prompts used across the Claude Code sessions:
+
+        1. Statements first, no placeholders. The opening prompt directed the agent to
+        *state* Theorem 1.1, Lemma 3.1 and Theorem 3.2 (proving them with
+        `sorry -- <ref>`) and to fill in Theorem 1.1's proof while leaving 3.1/3.2 as
+        referenced sorries. It stressed (verbatim, paraphrased): "It is CRUCIAL that you
+        do not use any mathematical placeholders — make *correct* mathematical
+        statements, using `sorry -- <ref>` only where needed", and that eq. (3.1) on
+        p. 8 may stay a properly-stated sorry. The agent was told to "Start by stating
+        Theorem 1.1, Lemma 3.1 and Theorem 3.2 before proceeding further" — i.e. get the
+        interface right before any proving.
+
+        2. Stable-statement invariant. A standing constraint, repeated across sessions:
+        "you should NOT change the *statements* of `sumProduct_false`,
+        `regulator_le_discr` or the Martinet-towers input. Those *statements* must
+        remain stable at all times as they have been reviewed for correctness." Proofs
+        of 3.1/3.2 could remain sorry/axiom; only the statements were frozen.
+
+        3. Pre-audit of statements. A dedicated, code-read-only session audited the three
+        top-level statements for mathematical correctness, edge cases and Lean/Mathlib
+        idiosyncrasies ("do not edit any code"), and later a "full audit of this work …
+        modulo three axioms that I am allowing".
+
+        4. Open-ended autonomy with persistence. The bulk of proof progress was driven by
+        short recurring nudges — "Please continue with the next steps", "continue with
+        your recommendation … We want to reach our goal", "Don't give up" — granting the
+        agent latitude to add tasks, state intermediate lemmas, and choose tactics, while
+        pushing for a genuinely sorry-free proof rather than stopping at scaffolding.
+
+        5. Targeted goals when needed. When progress stalled, prompts named the next
+        concrete objective, e.g. "I want lattice_count_add and lattice_count_mult to be
+        proven. You can work incrementally, but make real meaningful progress", and later
+        "I want you to prove lattice_count_mul".
+
+        6. Explicit commit gating. Commits were never automatic: "make a commit",
+        "commit", "Lint, then commit" were issued by the human at chosen checkpoints.
+
+        7. Content-preserving reorganization. A separate prompt asked to clean up
+        documentation and split the single file into thematic modules, emphasizing this
+        was "a doc change and reorganization only" with the formal content unchanged.
+
+        8. Mathlib steer. A late prompt corrected a scoping assumption — "We *do* have the
+        analytic class number formula in mathlib. Do a quick search, and see whether you
+        can use it to formalize the proof of Lemma 3.1" — nudging the agent to revisit an
+        axiom it had deemed out of reach.
+
+    - method: "agent"
+      models: ["claude-opus-4-8", "gpt-5.5", "grok-build-0.1"]
+      framework: "Claude Code orchestrator with OpenAI Codex (`codex exec`) and the Grok Build TUI"
+      tool_setup: >-
+        Separate eq-(3.1) axiom-removal effort (2026-06-01). Claude Code orchestrated
+        the final proof work, including delegation to OpenAI Codex (model gpt-5.5) via
+        a command that shells out to `codex exec` for the hard analytic core, plus a
+        parallel Claude subagent for the elementary sinc-integral estimate. An earlier
+        Grok Build TUI attempt (model grok-build-0.1) produced a cube-section blueprint
+        but was abandoned after looping on the build; its code was not reused.
+      cost:
+        wall_time: "~1 day (2026-06-01)"
+        spend_usd: "not separately metered/recorded; subscription-based usage"
+        hardware: "API-only"
+      notes: >-
+        Later, separate work discharging `hensley_unitBox_volume`, thereby taking the
+        headline theorem from three nonstandard mathematical axioms to two. Final code
+        was rewritten from scratch relative to the abandoned Grok attempt, with the same
+        no-sorry/no-weakening bar and human-gated commits.
+      prompting_notes: >-
+        Prompting notes for the separate eq-(3.1) axiom-removal effort:
+
+        1. Adversarial audit first. The session opened by asking for a multi-agent
+        adversarial audit of the repo along three axes — deviations from the natural-language
+        mathematics, Mathlib-idiom optimizations, and structural simplifications — run as a
+        Claude Code find/verify/synthesize workflow before any axiom work.
+
+        2. A concurrent Grok attempt, not reused. In parallel, the Grok Build TUI (model
+        grok-build-0.1) had been asked to blueprint a replacement for `hensley_unitBox_volume`
+        and to attack it with its own agent swarm; it produced a cube-section blueprint but
+        doom-looped on the build and was eventually stopped. Its code was rewritten from scratch
+        — a Fintype-indexed reduction with a Fourier proof preserving the sharp constants — though
+        its cube-section blueprint seeded the approach. Claude was told to take over and finish the
+        full proof with no sorry and no weakening, the standing bar being the sharp constants
+        `(2r)^{d-1}/√d … 5(2r)^{d-1}/√d`.
+
+        3. Delegating the hard analytic core to Codex. A Claude command that shells out to
+        `codex exec` (OpenAI Codex, model gpt-5.5) was used to hand off the Mathlib-gap steps as a
+        sequence of self-contained tasks, each naming the exact target, the relevant Mathlib lemmas,
+        and the no-sorry/no-weakening bar: a survey of proof routes; the reduction (define
+        `cubeSumLaw n`, prove `charFun (cubeSumLaw n) = sinc^n`, cut the volume bound to a
+        one-dimensional probability bound); a Parseval-bridge attempt that hit a non-integrability
+        wall; the density route (the convolution recursion, the explicit density, `g(0)=½P_n`),
+        narrowing to a single Fourier-inversion-at-0 lemma; and the close of that lemma, discharging
+        the bridge.
+
+        4. Explicit parallel delegation. The orchestrator was directed to spin off the elementary
+        estimate in parallel: a self-contained Claude subagent proved
+        `π/√N ≤ ∫(sin t/t)^N ≤ 5π/√N` (~790 lines, via an FTC/Wallis recursion and an even/odd
+        tail split) in its own file, while the orchestrator drove the Codex bridge.
+
+        5. Persistence and commit gating, as before. Short nudges carried the long analytic grind;
+        commits stayed human-gated and scoped.
+    - method: "multi-agent framework"
+      models: ["claude-opus-4-8"]
+      framework: "Custom asynchronous multi-agent orchestrator (a task-DAG engine launching worker + reviewer agents on open tasks)"
+      tool_setup: >-
+        Production of the in-repository `DedekindZeta` library — developed in a separate
+        formalization workflow and now part of this repository (see the production/prune commits). Built by a custom asynchronous orchestrator
+        that maintains a DAG of tasks and launches agents on the open (ready) ones: each worker agent
+        picks up an open task, works in an isolated git worktree (workspace-mirror with reflinked files
+        and a symlinked `.lake/packages`), and proposes a contribution; reviewer agents approve or
+        return `request_changes`; an approved contribution merges to `main` only after a `lake build`
+        pre-merge gate (1800s timeout). Up to 20 concurrent worker agents and 20 concurrent reviewer
+        agents. Model: Claude Opus 4.8 (claude-opus-4-8) at low reasoning effort. Lean 4 / Mathlib
+        v4.30.0.
+      cost:
+        wall_time: "~1 day (2026-06-01)"
+        spend_usd: "≈603 (metered; 11,352 model requests, 12,484 tool calls, ~9.1M output + 5.3M reasoning tokens)"
+        hardware: "API-only"
+      notes: >-
+        Built the `DedekindZeta` support library by the custom orchestrator described below — a single
+        binding task specification auto-decomposed into a DAG of 221 tasks run to completion. This
+        repository includes only the pruned declaration closure that `SumProduct.PartialZetaMellin`
+        uses: the completed-partial-zeta machinery, the theta/Mellin bridge, and the agreement with
+        Mathlib's `dedekindZeta` on the convergence strip.
+      prompting_notes: >-
+        Production model for the `DedekindZeta` support library:
+
+        1. One binding task spec, machine-decomposed. The human authored a single task file stating the
+        deliverables for the Dedekind-zeta support library, the no-`sorry`/no-weakening policy, and supporting
+        requirements as hard acceptance constraints — plus explicitly *non-binding* orchestrator hints
+        (source-reading guidance, Mathlib-coverage notes, a suggested decomposition the agents were free
+        to discard). The engine grew a task DAG from it (221 tasks), tasks spawning subtasks as the
+        proof was refined.
+
+        2. Worker/reviewer loop on open tasks. The async engine launched worker agents on the open
+        (ready) tasks — each in its own worktree — and reviewer agents that approved or returned
+        `request_changes` with feedback the worker then resumed against; merges to `main` were gated on
+        a clean `lake build`, with merge-conflict / post-merge-validation / dirty-entrypoint paths fed
+        back as revision prompts.
+
+        3. Convergence, not a single transcript. Unlike the interactive Claude Code phases, this phase
+        ran many short-lived agents concurrently to convergence under the orchestrator; the human's role
+        was authoring the spec and setting the no-sorry / faithful-statement bar, not step-by-step
+        steering.
+    - method: "agent"
+      models: ["claude-opus-4-8"]
+      framework: "Claude Code orchestrator with parallel/sequential subagents"
+      tool_setup: >-
+        Separate partial-zeta Mellin axiom-removal effort (2026-06-02). Stock Claude Code driving
+        Claude Opus 4.8 (claude-opus-4-8, 1M-context) as an orchestrator that fanned out focused
+        opus subagents for the proof, plus a metaprogramming-based dependency analysis (traversing
+        compiled `thmInfo.value` proof terms) to extract and minimize the supporting modules. The
+        analytic input was supplied by a sibling Dedekind-zeta support formalization, then
+        incorporated into this repository.
+      cost:
+        wall_time: "~1 day (2026-06-02)"
+        spend_usd: "not separately metered/recorded; subscription-based usage"
+        hardware: "API-only"
+      notes: >-
+        Work discharging the former partial-zeta Mellin axiom; current minimized code exposes the
+        needed theorem `partialCompletedZetaResidue_le`, taking the headline theorem from two nonstandard
+        mathematical axioms to one (only Martinet's Theorem 3.2 remains). The `DedekindZeta`
+        library was then incorporated in-repo and pruned to the bridge's dependency closure. Same
+        no-sorry/no-weakening bar and human-gated commits.
+      prompting_notes: >-
+        Prompting notes for the separate Mellin axiom-removal effort:
+
+        1. Investigate, then plan, then orchestrate. The session opened by mapping both the consumer
+        (the `sumProduct_false` axiom and its sole use site) and the `DedekindZeta` library via
+        parallel read-only explore agents, before any proving; the human asked to "plan your work then
+        use opus subagents liberally" with the orchestrator planning and verifying rather than running
+        the proof searches itself.
+
+        2. The class-number-formula linchpin. The human pointed out that Mathlib already has the
+        analytic class number formula; this supplied the per-class pole residue `2^rR/w` (via
+        `dedekindZeta_residue` + `completedDedekindZeta_eq`) with no geometric volume computation,
+        turning the one genuinely hard gap into routine work.
+
+        3. Decomposition into subagent-sized lemmas. Focused opus subagents each owned one piece —
+        normalization (`partialCompletedZeta` as a real part of the completed zeta), the residue
+        identity, tail nonnegativity, and the analytic crux (the theta-inversion-under-the-integral
+        reflection) — each compiling iteratively against the library; the orchestrator integrated and
+        verified `#print axioms`.
+
+        4. Initial faithful target, then minimization. The original discharge targeted the exact axiom
+        statement (the clean pole + nonnegative-tail Mellin representation). A later minimization pass
+        kept only the inequality the consumer uses, `partialCompletedZetaResidue_le`, while preserving
+        the same one-axiom headline result.
+
+        5. Incorporate, then minimize by metaprogramming. After incorporating the modules, a Lean
+        metaprogram computed the exact declaration-level dependency closure of `sumProduct_false` (traversing
+        compiled proof terms) to delete unused declarations — the Euler-product deliverable, the
+        functional equation, the abstract Mellin-principle residue/FE lemmas, and a `theta`
+        sub-development — with the build used to restore the few `@[simp]` lemmas referenced only by
+        name. Commits stayed human-gated and scoped.
+    - method: "agent"
+      models: ["gpt-5.5"]
+      framework: "pi coding agent (OpenAI Codex provider, xhigh reasoning)"
+      tool_setup: >-
+        Interactive pi coding-agent session (pi v0.78.0, Node package
+        `@earendil-works/pi-coding-agent` v0.78.0), using provider `openai-codex`, model `gpt-5.5`,
+        and thinking level `xhigh`. Tools used were the built-in `read`, `bash`, `edit`, and `write`
+        tools plus shell access to `git`, `lake`, and `gh`; no custom project extensions or subagents
+        were used. The session first reviewed PR #3 and related metadata, then created the stacked
+        branch `minimize-dedekindzeta-from-pr3` on top of `finalize-discharge-mellin-axiom`.
+      cost:
+        wall_time: "~3 hours (2026-06-02 to 2026-06-03 UTC)"
+        spend_usd: "not separately metered/recorded; subscription-based OpenAI Codex usage"
+        hardware: "API-only"
+      notes: >-
+        Follow-up minimization/review session. It confirmed PR #2 was superseded by PR #3, posted PR
+        review comments, closed #2, then minimized the PR #3 analytic bridge by targeting the theorem
+        actually consumed by `RegulatorBound`: `partialCompletedZetaResidue_le`. The session deleted
+        the sum-product-side partial-zeta bookkeeping file, stopped exporting the old faithful
+        existential `partialCompletedZeta_mellin_formula`, rewired `RegulatorBound` to sum the direct
+        per-ideal inequalities through `DedekindZeta.completedDedekindZeta`, removed an additional
+        unused Mellin-tail nonnegativity lemma, updated documentation/metadata, and opened the stacked
+        PR #4. After PR #4 was merged into the PR #3 branch, the same pi session performed a final
+        review pass and cleaned stale documentation/provenance references to the old faithful Mellin
+        theorem and pruned DedekindZeta functional-equation/Euler-product deliverables. Build and axiom
+        checks were used as gates.
+      prompting_notes: >-
+        Prompting notes for the pi minimization session:
+
+        1. Review before editing. The session began as a PR-review task for #3, including a build and
+        axiom audit, a focused review of `formalization.yaml`, and a GitHub PR comment. The human then
+        asked whether #2 could really be closed in favor of #3; the agent compared the branches,
+        identified #2 as superseded by #3, and closed #2 with an explanatory comment.
+
+        2. Hypothesis-driven minimization. The human suspected that much of the partial-zeta bridge was
+        unnecessary if the code used the local `DedekindZeta` deliverables directly rather than
+        reconstructing the old partial-zeta Mellin axiom under the new name
+        `partialCompletedZeta_mellin_formula`. The agent fetched the current PR #3 head, branched from
+        it, inspected imports and dependency notes, and tried to minimize the consumer boundary.
+
+        3. Target the consumer, not the historical axiom shape. The key simplification was replacing
+        the exported clean Mellin existential with the direct per-ideal inequality
+        `partialCompletedZetaResidue_le`, then applying it to `DedekindZeta.idealClassRep` and summing
+        inside `DedekindZeta.completedDedekindZeta`. This removed `SumProduct.PartialZeta`, the
+        `partialIdealCount`/`partialDedekindZeta`/`partialCompletedZeta` layer, the explicit `Φ, Ψ`
+        density packaging, and the auxiliary `t = u²` change-of-variables proof.
+
+        4. Mechanical gates. After each reduction the agent ran targeted Lean checks, then
+        `lake build SumProduct`, `lake env lean --trust=0 SumProduct.lean`, and explicit `#print
+        axioms` checks for `sumProduct_false`, `partialCompletedZetaResidue_le`, and
+        `dedekindZeta_completed_ge_residue`. The one-axiom headline state was unchanged.
+
+        5. Stacked PR workflow. Commits were human-requested and pushed to
+        `minimize-dedekindzeta-from-pr3`; the agent opened PR #4 with base
+        `finalize-discharge-mellin-axiom`, documenting the line-count reduction and the unchanged
+        axiom boundary.
+
+        6. Final PR #3 documentation pass. After PR #4 was merged, the agent re-read PR #3's
+        description/comments and the changed documentation, rebuilt the project, rechecked axioms, and
+        cleaned stale prose in README/task metadata and `DedekindZeta` docstrings so the current
+        repository state consistently advertises `partialCompletedZetaResidue_le` rather than the
+        removed `partialCompletedZeta_mellin_formula`, and does not claim the pruned in-repo library
+        still exports full Euler-product or functional-equation deliverables.
+  spend_usd: >-
+    ≈603 API-metered USD recorded for the asynchronous Dedekind-zeta
+    support-library run, plus subscription-based/unmetered sessions not separately recorded
+    (including the pi minimization/review run).
+  notes: >-
+    Production combined human-directed interactive agent sessions, delegated
+    proof-search subagents, a custom asynchronous worker/reviewer orchestrator,
+    and a later pi minimization/review pass; per-method details are listed above.
+
+# fidelity
+fidelity:
+  divergences: >-
+    Scope: the formalization covers the headline real sum-product result (paper
+    Theorem 1.1, as `SumProduct.sumProduct_false`) and its full proof; the paper's
+    "many sums and products" extension is not formalized. A single classical, externally-referenced input is
+    passed as an explicit theorem hypothesis rather than a Lean axiom: Theorem 3.2 (Martinet's
+    asymptotically good totally real towers, `MartinetTotallyRealTowers`), which requires class
+    field theory not currently in Mathlib. The development's two analytic inputs are proved theorems:
+    the per-ideal residue inequality for the Dedekind zeta:
+    `(2^rR/w) ≤ s(s-1)·(DedekindZeta.completedPartialZeta K 𝔞 (s:ℂ)).re` for real
+    `s > 1` (`partialCompletedZetaResidue_le`, general number field) — is proved in
+    `SumProduct.PartialZetaMellin` using the in-repository `DedekindZeta` library (Hecke
+    theta–Mellin theory and the theta inversion law) together with Mathlib's analytic class number
+    formula (used to pin the pole residue to `2^rR/w` with no geometric volume computation).
+    Equation (3.1) (the Hensley / Ball–Vaaler cube-slice volume bound) is proved in
+    `SumProduct.CubeSectionHensley` (`hensley_unitBox_volume`) via the elementary
+    sinc-integral route and Fourier inversion. The
+    Euler-product bound `ζ_K(2) ≤ 2^d` (`dedekindZeta_two_re_le`) is proved in
+    `SumProduct.EulerBound` (the ideal-counting function is multiplicative
+    and bounded by the d-fold divisor function, whose Dirichlet series is `riemannZeta^d`; with
+    `riemannZeta 2 = π²/6 ≤ 2`). The functional-equation residue bound
+    `dedekindZeta_completed_residue_le`, the Louboutin-type residue bound
+    `dedekind_residue_le` (`κ_K ≤ 2(2/π)^d√Δ_K`, that bound at s=2), and Lemma 3.1
+    (regulator ≤ discriminant, `regulator_le_discr`) are proved
+    (in `SumProduct.RegulatorBound`) from the per-ideal residue inequality (plus the proved Euler
+    bound), Mathlib's analytic class number formula (`NumberField.dedekindZeta_residue`; for totally
+    real K, `κ_K = 2^{d-1}R_K h_K/√Δ_K`), and `h_K ≥ 1`. The two geometry-of-numbers
+    lattice-point counts, Lemma 3.5 (`lattice_count_add`) and Lemma 3.7
+    (`lattice_count_mult`), are proved. Modeling choices: regulator = `NumberField.Units.regulator`; discriminant
+    via `NumberField.discr K : ℤ` (taken in absolute value, equal to Δ_K since totally
+    real fields have positive discriminant); degree = `Module.finrank ℚ K`; totally
+    real = `NumberField.IsTotallyReal`; sumset/product as `Finset` pointwise `A + A`,
+    `A * A`; the exponent `|A|^(2-c)` via `Real.rpow`. "Arbitrarily large" is encoded
+    as `∀ N, ∃ A, N ≤ |A| ∧ …`. The auxiliary lattice constants differ from the paper's
+    nominal values (verified-correct alternatives c = 1/100, ε = 3/20).
+
+# review status
+review:
+  status: "self-assessed; agent-audited"
+  reviewers: ["Formal Frontier Team", "pi harness / gpt-5.5 xhigh (read-only audit, 2026-05-31)"]
+  notes: >-
+    Review is self-assessed and agent-audited, not independent external peer review (see the caveat
+    below). It comes in two parts, at two different states of the development.
+
+    Statement + proof-path audit (2026-05-31, historical). Dedicated read-only audit sessions —
+    Claude Code, plus a fresh pi-harness / gpt-5.5-xhigh pass on 2026-05-31 — checked the
+    mathematical fidelity of the frozen top-level statements (Theorem 1.1 `sumProduct_false`,
+    Lemma 3.1 `regulator_le_discr`, Theorem 3.2 `MartinetTotallyRealTowers`) and of the proof-path
+    statements (`lattice_count_add`, `unit_separation`, `lattice_count_mult`, `lemma_4_1`,
+    `theorem_1_2`), confirmed `lake build` and `lake env lean --trust=0 SumProduct.lean`, and ran
+    `#print axioms`. This audit PREDATES the June 1–2 discharge of eq. (3.1) and the partial-zeta
+    Mellin axiom, so it reflects an earlier (larger) axiom state; the statements it froze are
+    unchanged, but its axiom findings are superseded by the current state below.
+
+    Current state (this branch). `#print axioms SumProduct.sumProduct_false` reports exactly `propext`,
+    `Classical.choice`, and `Quot.sound`; Martinet's Theorem 3.2 is the explicit hypothesis
+    `SumProduct.MartinetTotallyRealTowers`, not a Lean axiom. The analytic inputs
+    `partialCompletedZetaResidue_le` and
+    `hensley_unitBox_volume`, together with `dedekindZeta_completed_ge_residue`,
+    `dedekindZeta_completed_residue_le`, `dedekind_residue_le`, `regulator_le_discr`, and the Euler
+    bound `dedekindZeta_two_re_le`, are proved theorems. `lake build` is clean. Auxiliary source
+    searches find no additional `axiom` declarations and no suspicious metaprogramming or environment
+    hooks (`unsafe`, custom macros/elabs, `run_cmd`, `implemented_by`). The headline theorem has
+    additionally been verified with the comparator configuration `comparator/sum_product_false.json`,
+    checking that the solution proves the same statement as the Mathlib-only `Challenge` wrapper,
+    uses only the permitted axioms (`propext`, `Classical.choice`, `Quot.sound`), and is accepted by
+    Lean's kernel. It has not been re-audited by a separate review session beyond these mechanical
+    checks.
+
+    Caveat: the audits were agent-assisted and not independent external peer review; they raise
+    confidence in statement fidelity, axiom-boundary correctness, and internal consistency, but
+    should not be treated as a substitute for expert third-party review.
+
+# alignment - how source statements map to formal declarations.
+alignment:
+  namespace: "SumProduct"
+  statements:
+    - source: "Theorem 1.1 (sum-product false over ℝ)"
+      lean: "SumProduct.sumProduct_false"
+      module: "SumProduct.Construction"
+      status: "proved"
+    - source: "Theorem 1.2 (real-embedded form)"
+      lean: "SumProduct.theorem_1_2"
+      module: "SumProduct.Construction"
+      status: "proved"
+    - source: "Lemma 4.1 (construction A = G·P over 𝒪_K)"
+      lean: "SumProduct.lemma_4_1"
+      module: "SumProduct.Construction"
+      status: "proved"
+    - source: "Lemma 3.1 (regulator ≤ discriminant)"
+      lean: "SumProduct.regulator_le_discr"
+      module: "SumProduct.RegulatorBound"
+      status: "proved"
+      note: >-
+        Proved from the residue bound `dedekind_residue_le`, Mathlib's analytic class number
+        formula (`NumberField.dedekindZeta_residue`), and `h_K ≥ 1`.
+    - source: "Louboutin-type residue bound (functional equation at s=2)"
+      lean: "SumProduct.dedekind_residue_le"
+      module: "SumProduct.RegulatorBound"
+      status: "proved"
+      note: >-
+        `κ_K ≤ 2(2/π)^d √Δ_K`, proved by combining the residue bound
+        `dedekindZeta_completed_residue_le` at `s = 2` with the proved Euler bound
+        `dedekindZeta_two_re_le` (`ζ_K(2) ≤ 2^d`).
+    - source: "Completed-zeta residue bound (totally real)"
+      lean: "SumProduct.dedekindZeta_completed_residue_le"
+      module: "SumProduct.RegulatorBound"
+      status: "proved"
+      note: >-
+        `κ_K ≤ s(s-1)|Δ_K|^{(s-1)/2}π^{-ds/2}Γ(s/2)^d ζ_K(s)`, derived by specializing
+        `dedekindZeta_completed_ge_residue` to totally real `K` (r₂=0) and dividing by `√|Δ_K|`.
+    - source: "Inequality form: completed zeta exceeds its residue"
+      lean: "SumProduct.dedekindZeta_completed_ge_residue"
+      module: "SumProduct.RegulatorBound"
+      status: "proved"
+      note: >-
+        `κ_K√|Δ|/π^{r₂} ≤ s(s-1)Λ_K(s)` for s>1 (general number field), by summing the per-class
+        inequalities `partialCompletedZetaResidue_le`.
+    - source: "Per-ideal residue inequality for the Dedekind zeta"
+      lean: "SumProduct.partialCompletedZetaResidue_le"
+      module: "SumProduct.PartialZetaMellin"
+      status: "proved"
+      note: >-
+        For real s>1 and each nonzero ideal representative 𝔞,
+        `(2^rR/w) ≤ s(s-1)·(DedekindZeta.completedPartialZeta K 𝔞 (s:ℂ)).re`. Proved in
+        `SumProduct.PartialZetaMellin` using the in-repository `DedekindZeta` library (completed
+        partial zetas and the theta inversion law `radialTheta_inversion`) plus Mathlib's analytic
+        class number formula `NumberField.dedekindZeta_residue` (which pins the pole residue to 2^rR/w via
+        `completedDedekindZeta_eq` + `ZInfty(1)=√|Δ|/π^{r₂}`, no geometric volume computation). The
+        theta inversion reflects the dual tail's `Ioo 1 X` slice so the prefactor's polar deficit
+        cancels into the clean pole plus nonnegative `u`-tails.
+    # Dedekind-zeta support-library results in this repository:
+    - source: "Dedekind zeta as a sum over integral ideals"
+      lean: "DedekindZeta.dedekindZeta_eq_tsum_absNorm"
+      module: "DedekindZeta.Statements"
+      status: "proved"
+      note: "`ζ_K(s) = ∑_{𝔞 ≠ 0} 𝔑(𝔞)^{-s}` for `1 < Re s`; agrees with Mathlib's `NumberField.dedekindZeta`."
+    - source: "Per-class completed zeta as a theta/Mellin integral"
+      lean: "DedekindZeta.completedPartialZeta_idealClassRep_eq"
+      module: "DedekindZeta.PerClass"
+      status: "proved"
+      note: "Per ideal class `c`, `Z(c,s) = Z_∞(s) · (partial Dirichlet series over class c⁻¹)` on `1 < Re s`."
+    - source: "Theta transformation/inversion law"
+      lean: "DedekindZeta.ConeRadialReduction.radialTheta_inversion"
+      module: "DedekindZeta.ConeRadialReduction"
+      status: "proved"
+      note: "`radialTheta 𝔞 (1/r) = (covolume 𝔞)⁻¹·r·radialThetaDual 𝔞 r`; the input that absorbs the prefactor into the clean pole."
+    - source: "Agreement of the completed object with Mathlib's ζ_K on `Re s > 1`"
+      lean: "DedekindZeta.completedDedekindZeta_eq"
+      module: "DedekindZeta.PerClass"
+      status: "proved"
+      note: "`Λ_K(s) = Z_∞(s) · NumberField.dedekindZeta K s` for `1 < Re s` (used to pin the residue via the class-number formula)."
+    - source: "Euler-product bound of ζ_K (ζ_K(2) ≤ 2^d)"
+      lean: "SumProduct.dedekindZeta_two_re_le"
+      module: "SumProduct.EulerBound"
+      status: "proved"
+      note: >-
+        `(dedekindZeta K 2).re ≤ 2^d`, proved: the ideal-counting
+        function `a_n = #{ideals of norm n}` is multiplicative and bounded by the d-fold divisor
+        function `ζ^d`, whose L-series is `riemannZeta^d`; with `riemannZeta 2 = π²/6 ≤ 2`.
+    - source: "Theorem 3.2 (Martinet totally real towers)"
+      lean: "SumProduct.MartinetTotallyRealTowers"
+      module: "SumProduct.Martinet"
+      status: "literature-dependency"
+      note: "Used as the explicit hypothesis of the main theorem, not as a Lean axiom."
+    - source: "Equation (3.1) (Hensley / Ball–Vaaler cube-slice volume bound)"
+      lean: "SumProduct.hensley_unitBox_volume"
+      module: "SumProduct.CubeSectionHensley"
+      status: "proved"   # via the elementary sinc-integral route + Fourier inversion (no Vaaler/Ball)
+    - source: "Lemma 3.5 (additive lattice-point count)"
+      lean: "SumProduct.lattice_count_add"
+      module: "SumProduct.AdditiveCount"
+      status: "proved"
+    - source: "Lemma 3.6 (unit separation)"
+      lean: "SumProduct.unit_separation"
+      module: "SumProduct.UnitSeparation"
+      status: "proved"
+    - source: "Lemma 3.7 (multiplicative lattice-point count)"
+      lean: "SumProduct.lattice_count_mult"
+      module: "SumProduct.MultiplicativeCount"
+      status: "proved"
+
+# acknowledgements - key Mathlib APIs this formalization builds on.
+acknowledgements: >-
+  Built on Mathlib; this development relies on and gratefully credits the APIs and contributors
+  behind the following pieces.
+
+  Number-field infrastructure, especially the canonical/Minkowski embedding, the fundamental cone,
+  `NumberField.dedekindZeta`, and the analytic class number formula
+  (`NumberField.dedekindZeta_residue` and `tendsto_sub_one_mul_dedekindZeta_nhdsGT`), is due in
+  large part to Xavier Roblot. The class number formula is the linchpin that fixes the partial-zeta
+  pole residue at `2^r R / w`.
+
+  The analytic infrastructure used here includes Mathlib's Mellin transform, `Complex.Gamma`,
+  L-series API, Fourier analysis, and Poisson summation
+  (`Mathlib.Analysis.Fourier.PoissonSummation`, `…SpecialFunctions.Gaussian.PoissonSummation`),
+  with substantial contributions by David Loeffler, Heather Macbeth, Michael Stoll, Aaron Anderson,
+  Xavier Roblot, Chris Birkbeck, and others. These APIs underlie the theta transformation
+  (inversion) law.
+
+  We also thank Thomas Browning for useful discussions.
+
+  Finally, we thank the broader Mathlib community; the formalization rests throughout on Mathlib's
+  algebra, analysis, measure theory, topology, and number theory libraries.

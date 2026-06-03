@@ -1,0 +1,35 @@
+name = "sum_product"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["SumProduct"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.30.0"
+
+[[lean_lib]]
+name = "SumProduct"
+
+# Trusted challenge and solution-wrapper modules for leanprover/comparator.  `Challenge` imports
+# only Mathlib; `Solution` imports this project and delegates to `SumProduct.sumProduct_false`.
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
+
+# In-repository Dedekind-zeta support library (completed partial zetas and the theta inversion law).
+# Supplies the analytic input proved in SumProduct.PartialZetaMellin
+# (`partialCompletedZetaResidue_le`). This is the transitive
+# module closure of what PartialZetaMellin uses (the upstream `DedekindZeta.Basic` prose module
+# is not reachable and was omitted). Kept under its own namespace to minimize churn.
+[[lean_lib]]
+name = "DedekindZeta"
+globs = ["DedekindZeta.+"]

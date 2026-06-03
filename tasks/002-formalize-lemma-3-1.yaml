@@ -1,0 +1,52 @@
+schema_version: 1
+id: formalize-lemma-3-1
+title: "Formalize Lemma 3.1 (regulator ≤ discriminant)"
+status: completed  # Lemma 3.1 is proved; the analytic residue inequality and ζ_K(2)≤2^d are theorems.
+depends_on: []
+summary: Discharge the Lemma 3.1 assumption; only Martinet's Theorem 3.2 remains as an explicit hypothesis
+description: |
+  Prerequisite for [formalize-theorem-1-1]: discharge the **Lemma 3.1**
+  assumption it depends on.
+
+  **Statement.** If $K$ is a totally real number field of degree $d \geq 2$,
+  then
+  $$R_K \leq \Delta_K,$$
+  where $R_K$ is the regulator and $\Delta_K$ the discriminant of $K$.
+
+  The paper's proof specializes a standard analytic class-number bound: for real $s > 1$, with
+  class number $h_K \geq 1$,
+  $$2^d R_K h_K \leq 2 s (s-1)\bigl(\pi^{-d/2}\Delta_K^{1/2}\bigr)^{s}\,
+  \Gamma(s/2)^d \zeta(s)^d,$$
+  and takes $s = 2$ to get $R_K \leq 4(\pi/12)^d \Delta_K \leq \Delta_K$ for
+  $d \geq 2$.
+
+  **Scope of formalization.** Formalize this proof **down to standard material
+  available in graduate-level number theory textbooks** — e.g. the analytic
+  class number formula / the bound it is specialized from, basic properties of
+  $\zeta$ and $\Gamma$, and the definitions of regulator, discriminant, and
+  class number. Exactly which of these are assumed as a trusted interface
+  versus proven from the chosen library **is to be decided later** with
+  collaborators.
+
+  **STATUS (completed).** `regulator_le_discr` is a proved theorem in
+  `SumProduct.RegulatorBound`, no longer an axiom. The analytic input it uses is the proved theorem
+  `partialCompletedZetaResidue_le` in `SumProduct.PartialZetaMellin`:
+  for real `s > 1` and each nonzero ideal representative `𝔞`,
+  `(2^rR/w) ≤ s(s-1)·(DedekindZeta.completedPartialZeta K 𝔞 (s:ℂ)).re`. This is proved from the
+  bundled `DedekindZeta` library (completed partial zetas and the theta inversion law) together with
+  Mathlib's analytic class number formula, which identifies the pole residue `2^rR/w`.
+
+  `SumProduct.RegulatorBound` applies `partialCompletedZetaResidue_le` to ideal-class
+  representatives and sums inside `DedekindZeta.completedDedekindZeta`, obtaining
+  `dedekindZeta_completed_residue_le`
+  (`κ_K ≤ s(s-1)|Δ_K|^{(s-1)/2}π^{-ds/2}Γ(s/2)^d ζ_K(s)`) in the totally real case.
+  The Euler-product bound `ζ_K(2) ≤ 2^d` is proved in `SumProduct.EulerBound`.
+
+  Derivations (all machine-checked):
+  - `dedekind_residue_le`: the completed-zeta residue bound at `s = 2` (`s(s-1)=2`, `Γ(1)=1`)
+    combined with `dedekindZeta_two_re_le` gives `κ_K ≤ 2(2/π)^d √Δ_K`.
+  - `regulator_le_discr`: combine with Mathlib's analytic class number formula
+    `NumberField.dedekindZeta_residue` (for totally real `K`,
+    `κ_K = 2^{d-1} R_K h_K / √Δ_K`), `h_K ≥ 1`, and `4 ≤ π^d` (`d ≥ 2`) ⇒ `R_K ≤ Δ_K`.
+
+  `#print axioms SumProduct.regulator_le_discr` reports only Lean/Mathlib standard axioms.

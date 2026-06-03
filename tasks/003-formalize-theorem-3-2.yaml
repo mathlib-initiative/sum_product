@@ -1,0 +1,27 @@
+schema_version: 1
+id: formalize-theorem-3-2
+title: "Formalize Theorem 3.2 (Martinet: totally real towers, Δ_K ≤ C^d)"
+status: blocked  # explicit hypothesis (`MartinetTotallyRealTowers`); needs Martinet's construction, not in Mathlib
+depends_on: []
+summary: Discharge the Theorem 3.2 assumption, down to standard graduate number theory
+description: |
+  Prerequisite for [formalize-theorem-1-1]: discharge the **Theorem 3.2**
+  (Martinet) assumption it depends on.
+
+  **Statement.** There exists an absolute constant $C > 0$ such that, for
+  infinitely many $d$, there exist totally real number fields $K$ of degree $d$
+  with
+  $$\Delta_K \leq C^d.$$
+
+  These are the asymptotically-good *totally real* towers first constructed by
+  Martinet (1978); they supply the bounded root-discriminant fields the
+  construction needs, so that (together with [formalize-lemma-3-1]) both
+  $\Delta_K$ and $R_K$ are $O(1)^d$.
+
+  **Scope of formalization.** Formalize the existence of such a tower **down to
+  standard material available in graduate-level number theory textbooks** —
+  e.g. ramification theory in towers, behavior of the (root) discriminant in
+  class field towers, and the relevant bounds. The precise cut between what is
+  assumed from the chosen library and what is proven, and indeed which
+  construction/route is formalized, **is to be decided later** with
+  collaborators.

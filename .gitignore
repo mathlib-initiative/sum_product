@@ -1,0 +1,6 @@
+/.lake
+
+# Copyrighted source material kept locally for verification only — never commit
+# (cf. tasks/source/README.md: the source paper was purged from history).
+tasks/source/*.pdf
+tasks/source/*_pages/

@@ -1,0 +1,57 @@
+schema_version: 1
+id: formalize-theorem-1-1
+title: "Formalize Theorem 1.1 (assuming Lemma 3.1 & Theorem 3.2)"
+status: completed
+depends_on:
+  - formalize-lemma-3-1
+  - formalize-theorem-3-2
+  - formalize-lemma-4-1
+summary: Formalize the proof of Theorem 1.1, taking Lemma 3.1 and Theorem 3.2 as assumptions
+progress: |
+  DONE (in the `SumProduct` library):
+  - `sumProduct_false` (Theorem 1.1) is proved conditionally on the explicit
+    hypothesis `SumProduct.MartinetTotallyRealTowers`.
+    `#print axioms SumProduct.sumProduct_false` lists only Lean's standard axioms.
+  - `theorem_1_2` (Theorem 1.2, real-embedded form) is proved from
+    `lemma_4_1` + `MartinetTotallyRealTowers`, via an injective real embedding
+    `𝒪_K ↪ ℝ` that preserves |A|, |A+A|, |A·A|.
+  - The reduction `Theorem 1.1 ⟸ Theorem 1.2` (the real-analysis / exponent
+    arithmetic with `Real.rpow`) is complete.
+
+  STATUS: COMPLETED. `lemma_4_1`, the §3 lattice-point counts
+  `lattice_count_add` (Lemma 3.5) and `lattice_count_mult` (Lemma 3.7), equation
+  (3.1) `hensley_unitBox_volume`, and Lemma 3.1 `regulator_le_discr` are proved
+  theorems.  The analytic residue inequality consumed by Lemma 3.1 is now the
+  proved theorem `partialCompletedZetaResidue_le` in `SumProduct.PartialZetaMellin`,
+  and the Euler bound `ζ_K(2) ≤ 2^d` is proved in `SumProduct.EulerBound`.
+
+  The only remaining nonstandard mathematical input is
+  `MartinetTotallyRealTowers` → [formalize-theorem-3-2] (Martinet's Theorem 3.2).
+
+  Note: the reviewed mathematical statements are unchanged, but Theorem 3.2 is now packaged as the
+  explicit proposition `MartinetTotallyRealTowers` instead of a Lean axiom. The code is organized
+  into thematic modules under `SumProduct/`; see `SumProduct.lean` and `README.md`.
+description: |
+  Entrypoint for the formalization of the paper *"The sum-product conjecture is
+  false for real numbers"* (source paper: see `tasks/source/README.md`).
+
+  **Goal — Theorem 1.1.** Formalize a complete, machine-checked proof of:
+
+  > There exists an absolute constant $c > 0$ such that there are arbitrarily
+  > large finite $A \subset \mathbb{R}$ with
+  > $$\max\bigl(\lvert A+A\rvert,\ \lvert AA\rvert\bigr) \leq \lvert A\rvert^{\,2-c}.$$
+
+  i.e. the sum-product conjecture $\max(\lvert A+A\rvert,\lvert AA\rvert) \geq
+  \lvert A\rvert^{2-o(1)}$ is **false** over $\mathbb{R}$.
+
+  **Current assumption boundary.** Lemma 3.1 is now proved in
+  `SumProduct.RegulatorBound`; equation (3.1) and the §3 lattice counts are also
+  proved. The only remaining mathematical input is the explicit hypothesis
+  **Theorem 3.2** (Martinet), `SumProduct.MartinetTotallyRealTowers`: there is an absolute
+  constant $C > 0$ such that for infinitely many $d$ there exist totally real number fields $K$ of
+  degree $d$ with $\Delta_K \leq C^d$.
+
+  **Scope.** Everything on the path from Martinet's theorem to Theorem 1.1: the
+  reduction of Theorem 1.1 to the general construction (Theorem 1.2 / §4), the
+  regulator bound, the additive and multiplicative lattice bounds, and the
+  numerical/counting estimates.

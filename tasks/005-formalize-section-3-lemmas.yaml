@@ -1,0 +1,42 @@
+schema_version: 1
+id: formalize-section-3-lemmas
+title: "Formalize the §3 geometry-of-numbers lemmas (lattice counts + eq. (3.1))"
+status: completed
+depends_on: []
+summary: >
+  The §3 lemmas consumed by Lemma 4.1: the additive/multiplicative lattice-point counts, unit
+  separation, and equation (3.1). All are proved.
+description: |
+  The §3 geometry-of-numbers lemmas, now all proved (in the `SumProduct` library).
+
+  FINAL STATE:
+
+  - **Lemma 3.5** (`lattice_count_add`, in `SumProduct.AdditiveCount`) — PROVED, no axioms.
+    `X^d / √Δ_K ≤ |B⁺(X)| ≤ (2X+1)^d`.
+    * upper bound `boxAdd_card_le`: `L^∞` measure packing of the 1-separated embedded integers;
+    * lower bound `boxAdd_card_ge`: Blichfeldt for the Minkowski lattice (covolume `√Δ_K`),
+      using a counting kernel built from `IsAddFundamentalDomain.lintegral_eq_tsum''` (Mathlib has
+      only the 2-point pigeonhole form of Blichfeldt).
+
+  - **Lemma 3.6** (`unit_separation`, in `SumProduct.UnitSeparation`) — PROVED, no axioms.
+    For `u : (𝓞 K)ˣ`, if `φ⁻¹ < w u < φ` for every infinite place `w`, then `u = ±1`.
+    Proof via `α = u² + u⁻² − 2`, the product formula `∏ w (w α)^(mult w) = |N α|`, and a
+    golden-ratio inequality.
+
+  - **Lemma 3.7** (`lattice_count_mult`, in `SumProduct.MultiplicativeCount`) — PROVED.
+    `Y^{d-1} / (√d · R_K) ≤ |B^×(Y)| ≤ 10 (5Y+1)^{d-1}`.
+    Work takes place in the unit lattice inside `logSpace K` (covolume `R_K`; the `√d` lives in
+    eq. (3.1) via the projection Jacobian).  Key identity: `u ∈ B^×(Y) ↔ logEmbedding u ∈ unitBox Y`.
+    * lower bound `boxMult_card_ge`: the abstract Blichfeldt inequality (`SumProduct.Blichfeldt`);
+    * upper bound `boxMult_card_le`: a `{±1}`-fibration (`torsionOrder_eq_two_of_totallyReal`) over
+      the packing bound `unitLattice_inter_unitBox_packing` (disjoint `unitBox(1/5)` translates,
+      separation via `unit_separation` and `two_fifths_lt_log_goldenRatio`).
+
+  - **Equation (3.1)** (`hensley_unitBox_volume`, in `SumProduct.CubeSectionHensley`) — PROVED
+    (Hensley / Ball–Vaaler cube-slice volume bound), stated in `logSpace` form:
+    `(2r)^{d-1}/√d ≤ vol(unitBox K r) ≤ 5(2r)^{d-1}/√d`. The proof reduces the volume to the law of a
+    sum of independent uniforms on `[-1,1]`, identifies that law by Fourier inversion, and applies
+    the elementary sinc-power bound.
+
+  Verification: `#print axioms lattice_count_add`, `#print axioms lattice_count_mult`, and
+  `#print axioms hensley_unitBox_volume` report only Lean/Mathlib standard axioms.
