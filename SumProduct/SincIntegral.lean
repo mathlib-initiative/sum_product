@@ -139,7 +139,6 @@ private lemma sinc_abs (t : ℝ) : Real.sinc |t| = Real.sinc t := by
 private lemma integral_sinc_pow_eq {N : ℕ} (_hN : 2 ≤ N) :
     ∫ t : ℝ, (Real.sinc t) ^ N = 2 * ∫ t in Ioi (0 : ℝ), (Real.sinc t) ^ N := by
   have h := integral_comp_abs (f := fun x : ℝ => (Real.sinc x) ^ N)
-  simp only at h
   rw [← h]
   congr 1
   ext t
@@ -182,9 +181,9 @@ private lemma J_rec (N : ℕ) :
       intro u _
       have h1 : HasDerivAt (fun u : ℝ => (1 - u ^ 2) ^ (N + 1))
           ((↑(N + 1)) * (1 - u ^ 2) ^ N * (0 - 2 * u)) u := by
-        have : HasDerivAt (fun u : ℝ => 1 - u ^ 2) (0 - 2 * u) u := by
-          simpa using (hasDerivAt_const u (1:ℝ)).sub ((hasDerivAt_pow 2 u))
-        simpa using this.pow (N + 1)
+        have : HasDerivAt (fun u : ℝ => 1 - u ^ 2) (0 - 2 * u) u :=
+          (hasDerivAt_const u (1:ℝ)).sub (by simpa using hasDerivAt_pow 2 u)
+        exact this.pow (N + 1)
       have h2 := (hasDerivAt_id u).mul h1
       convert h2 using 1
       simp only [hc, id_eq]

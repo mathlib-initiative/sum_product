@@ -356,6 +356,42 @@ automation:
         repository state consistently advertises `partialCompletedZetaResidue_le` rather than the
         removed `partialCompletedZeta_mellin_formula`, and does not claim the pruned in-repo library
         still exports full Euler-product or functional-equation deliverables.
+    - method: "agent"
+      models: ["claude-opus-4-8"]
+      framework: "Claude Code with the lean-lsp MCP server"
+      tool_setup: >-
+        Stock Claude Code (version 2.1.161) driving Claude Opus 4.8 (claude-opus-4-8), no custom
+        agents or harness modifications. The session used the `lean-lsp` MCP server for the
+        diagnose/fix loop — `lean_diagnostic_messages`, `lean_goal`, and `lean_multi_attempt`
+        (testing candidate tactics at a position without editing the file) — reserving full
+        `lake build` runs for surfacing the next set of failing modules rather than for per-edit
+        feedback.
+      cost:
+        wall_time: "~part of a day (2026-06-03)"
+        spend_usd: "none — subscription-based usage"
+        hardware: "API-only"
+      notes: >-
+        Toolchain-port/build-repair session: the project was moved to `leanprover/lean4`
+        v4.31.0-rc1 (Mathlib v4.31.0-rc1) and no longer compiled. The agent fixed nine proof
+        breakages across six files — `SincIntegral`, `AdditiveCount`, `GammaIntegral`, `Theta`,
+        `CubeSectionCore`, `ConeRadialReduction`, and `MultiplicativeCount` — all mechanical
+        API-shift repairs caused by the bump: `simp only`/`simpa … using` calls that now made no
+        progress or selected the wrong instance (replaced by direct `exact`, closing by defeq, or
+        removed), and the `CommGroup.mem_torsion` signature change (element now explicit). No
+        statements, axioms, or proof scope changed; the headline result and one-axiom boundary are
+        unchanged. `lake build` succeeds (8517 jobs). Branch and commit were human-gated.
+      prompting_notes: >-
+        Prompting notes for the v4.31.0-rc1 build-port session:
+
+        1. Open-ended goal. The session opened with "test if the project builds. if not, fix it." —
+        no enumeration of the failures, leaving the agent to discover and repair them.
+
+        2. LSP-driven diagnose/fix loop. The `lean-lsp` MCP server was used to read errors and proof
+        states and to verify candidate tactics at the failing position before editing.
+
+        3. Iterate to convergence. Because per-file diagnostics only re-check known-failing files,
+        full `lake build` runs were used between rounds to surface the next wave of modules that the
+        earlier failures had masked; the loop repeated until the build was clean.
   spend_usd: >-
     ≈603 API-metered USD recorded for the asynchronous Dedekind-zeta
     support-library run, plus subscription-based/unmetered sessions not separately recorded

@@ -300,7 +300,6 @@ theorem count_le_boxAdd {K : Type*} [Field K] [NumberField K] [NumberField.IsTot
               + normAtPlace w (latticeEmbed K α₀ + x) := by rw [normAtPlace_neg]
       have h1 := (mem_convexBodyLT_iff _ _).mp hαmem w
       have h2 := (mem_convexBodyLT_iff _ _).mp hα₀mem w
-      simp only at h1 h2
       have : (2 : ℝ) * (r : ℝ) = (r : ℝ) + (r : ℝ) := by ring
       linarith
     calc T.ncard = ((· - α₀) '' T).ncard := (Set.InjOn.ncard_image hinj).symm
@@ -339,7 +338,6 @@ theorem count_encard_le {K : Type*} [Field K] [NumberField K] [NumberField.IsTot
               + normAtPlace w (latticeEmbed K α₀ + x) := by rw [normAtPlace_neg]
       have h1 := (mem_convexBodyLT_iff _ _).mp hαmem w
       have h2 := (mem_convexBodyLT_iff _ _).mp hα₀mem w
-      simp only at h1 h2
       have : (2 : ℝ) * (r : ℝ) = (r : ℝ) + (r : ℝ) := by ring
       linarith
     calc T.encard = ((· - α₀) '' T).encard := (Set.InjOn.encard_image hinj).symm

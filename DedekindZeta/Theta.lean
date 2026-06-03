@@ -2006,14 +2006,13 @@ theorem covolume_idealLattice (𝔞 : Ideal (𝓞 K)) (hne : 𝔞 ≠ 0) :
     rw [hM, mixedEmbedding.mem_idealLattice, mem_idealLattice_iff]
     constructor
     · rintro ⟨a, ha, hax⟩
-      have ha' : a ∈ (I : Submodule (𝓞 K) K) := by
-        simpa only [hI', FractionalIdeal.coe_mk0, ← FractionalIdeal.mem_coe] using ha
+      have ha' : a ∈ (I : Submodule (𝓞 K) K) := ha
       refine ⟨a, ha', ?_⟩
       show toMinkowski K (mixedEmbedding K a) = x
       rw [hax, ContinuousLinearEquiv.apply_symm_apply]
     · rintro ⟨a, ha, hax⟩
       refine ⟨a, ?_, ?_⟩
-      · simpa only [hI', FractionalIdeal.coe_mk0, ← FractionalIdeal.mem_coe] using ha
+      · exact ha
       · have heq : eEmb K a = toMinkowski K (mixedEmbedding K a) := rfl
         rw [← hax, heq, ContinuousLinearEquiv.symm_apply_apply]
   -- `(toMinkowski K).symm` maps `volume` to `c • volume`.
