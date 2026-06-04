@@ -175,6 +175,40 @@ automation:
       cost:
         wall_time: "~1 day (2026-06-01)"
         spend_usd: "not separately metered/recorded; subscription-based usage"
+        api_equivalent:
+          estimate_usd: "≈117.82"
+          pricing_source: >-
+            Claude Opus 4.8 — https://platform.claude.com/docs/en/about-claude/pricing ;
+            OpenAI gpt-5.5 — https://openai.com/api/pricing/ ;
+            xAI grok-build-0.1 — https://openrouter.ai/x-ai/grok-build-0.1
+          pricing_date: "2026-06-04"
+          basis: >-
+            Reconstructed per tool from the local agent session logs for 2026-06-01 (the day of
+            the eq-(3.1) effort, cleanly separated from the 2026-06-02 partial-zeta work by an
+            ~11h overnight gap), and broken out by tool rather than rolled together.
+
+            Claude Code (claude-opus-4-8) — ≈77.74. 791 assistant requests and 99,727,993 total
+            tokens across the orchestrator session and its subagents (the parallel sinc-integral
+            subagent plus the opening adversarial-audit workflow swarm): 183,497 base input,
+            984,579 1h cache writes, 1,342,513 5m cache writes, 96,810,185 cache hits/refreshes,
+            407,219 output. Claude Opus 4.8 list pricing at $5/MTok base input, $10/MTok 1h cache
+            write, $6.25/MTok 5m cache write, $0.50/MTok cache hits/refreshes, $25/MTok output.
+            (Orchestrator ≈49.01; subagents ≈28.73.)
+
+            OpenAI Codex (gpt-5.5) — ≈38.12. The hard analytic core delegated via `codex exec`:
+            6 sessions, 51,157,016 total tokens (1,635,108 non-cached input, 49,346,304 cached
+            input, 175,604 output incl. 68,968 reasoning) at $5/MTok input, $0.50/MTok cached
+            input, $30/MTok output.
+
+            Grok Build (grok-build-0.1) — ≈1.97 (upper-bound floor). The abandoned, not-reused
+            blueprint attempt: one orchestrator plus nine subagents, ≈1,965,925 aggregate tokens
+            (1,147,017 across subagents + ≥818,908 in the orchestrator, which compacted twice).
+            The Grok Build logs record only an aggregate token count with no input/output/cache
+            split, so the full aggregate is priced at the $1/MTok input list rate (output is a
+            negligible fraction in comparable agentic sessions); the $0.20/MTok cached-read
+            discount cannot be applied, so this overstates rather than understates.
+
+            API-equivalent estimates only, not actual billing records.
         hardware: "API-only"
       notes: >-
         Later, separate work discharging `hensley_unitBox_volume`, thereby taking the
@@ -428,12 +462,14 @@ automation:
     sessions not separately billed as project API spend.
   api_equivalent_spend_usd: >-
     Reconstructed where usage logs are available: ≈225.99 for the initial Claude
-    Code formalization/audit phase and ≈55.32 for the described pi
-    minimization/review phase (≈63.27 if counting the full pi transcript). Added
-    to the already-metered ≈603 Dedekind-zeta support-library run, the quantified
-    actual/API-equivalent subtotal is ≈884.31 for those three items. Other
-    subscription-based Claude Code/Codex/Grok phases remain unmetered/not
-    reconstructed.
+    Code formalization/audit phase, ≈117.82 for the eq-(3.1) axiom-removal phase
+    (Claude ≈77.74 + Codex ≈38.12 + Grok Build ≈1.97, broken out per tool above),
+    and ≈55.32 for the described pi minimization/review phase (≈63.27 if counting
+    the full pi transcript). Added to the already-metered ≈603 Dedekind-zeta
+    support-library run, the quantified actual/API-equivalent subtotal is ≈1002.13
+    for those four items. The remaining subscription-based Claude Code phases (the
+    2026-06-02 partial-zeta Mellin removal and the 2026-06-03 lean-lsp cleanup pass)
+    remain unmetered/not reconstructed.
   notes: >-
     Production combined human-directed interactive agent sessions, delegated
     proof-search subagents, a custom asynchronous worker/reviewer orchestrator,
