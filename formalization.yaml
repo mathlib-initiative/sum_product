@@ -93,6 +93,22 @@ automation:
       cost:
         wall_time: "~2 days (2026-05-30 to 2026-05-31)"
         spend_usd: "none — subscription-based usage"
+        api_equivalent:
+          estimate_usd: "≈225.99"
+          pricing_source: "https://platform.claude.com/docs/en/about-claude/pricing"
+          pricing_date: "2026-06-04"
+          basis: >-
+            Reconstructed from Claude Code JSONL token-usage fields for the main
+            formalization session through 2026-05-31T20:20Z plus the separate
+            statement/audit session: 667 assistant requests and 302,706,283 total
+            tokens (48,978 base input, 3,994,802 1h cache writes, 297,174,042 cache
+            hits/refreshes, 1,488,461 output; no 5m cache writes). Uses Claude
+            Opus 4.8 API list pricing at $5/MTok base input, $10/MTok 1h cache
+            write, $0.50/MTok cache hits/refreshes, and $25/MTok output. This is
+            an API-equivalent estimate only, not an actual billing record.
+          alternate_scope: >-
+            Counting the entire continued main JSONL session through 2026-06-02
+            plus the audit session gives ≈$467.86 API-equivalent.
         hardware: "API-only"
       notes: >-
         Interactive, human-directed agent sessions (Claude Code). The mathematician
@@ -306,6 +322,20 @@ automation:
       cost:
         wall_time: "~3 hours (2026-06-02 to 2026-06-03 UTC)"
         spend_usd: "not separately metered/recorded; subscription-based OpenAI Codex usage"
+        api_equivalent:
+          estimate_usd: "≈55.32"
+          pricing_source: "https://openai.com/api/pricing/"
+          pricing_date: "2026-06-04"
+          basis: >-
+            Aggregated from pi JSONL `message.usage.cost` fields for the described
+            PR #3 / PR #4 minimization-review phase, with cutoff just before the
+            later `squash-merge the PR` prompt: 545 assistant model responses and
+            76,572,099 total tokens (2,652,462 input, 73,746,944 cached input,
+            172,693 output; no cache writes). The recorded provider estimate
+            matches $5/MTok input, $0.50/MTok cached input, and $30/MTok output.
+            This is an API-equivalent/provider-reported estimate only, not an
+            actual billing record.
+          full_session_estimate_usd: "≈63.27 through 2026-06-03T10:36Z"
         hardware: "API-only"
       notes: >-
         Follow-up minimization/review session. It confirmed PR #2 was superseded by PR #3, posted PR
@@ -393,9 +423,17 @@ automation:
         full `lake build` runs were used between rounds to surface the next wave of modules that the
         earlier failures had masked; the loop repeated until the build was clean.
   spend_usd: >-
-    ≈603 API-metered USD recorded for the asynchronous Dedekind-zeta
-    support-library run, plus subscription-based/unmetered sessions not separately recorded
-    (including the pi minimization/review run).
+    Actual separately metered spend: ≈603 API-metered USD recorded for the
+    asynchronous Dedekind-zeta support-library run, plus subscription-based
+    sessions not separately billed as project API spend.
+  api_equivalent_spend_usd: >-
+    Reconstructed where usage logs are available: ≈225.99 for the initial Claude
+    Code formalization/audit phase and ≈55.32 for the described pi
+    minimization/review phase (≈63.27 if counting the full pi transcript). Added
+    to the already-metered ≈603 Dedekind-zeta support-library run, the quantified
+    actual/API-equivalent subtotal is ≈884.31 for those three items. Other
+    subscription-based Claude Code/Codex/Grok phases remain unmetered/not
+    reconstructed.
   notes: >-
     Production combined human-directed interactive agent sessions, delegated
     proof-search subagents, a custom asynchronous worker/reviewer orchestrator,
