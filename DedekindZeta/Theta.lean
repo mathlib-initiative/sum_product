@@ -407,7 +407,7 @@ theorem sum_embeddings_mul (b a : K) :
   have hmul : ∀ σ : K →+* ℂ, σ b * σ a = σ (b * a) := fun σ => (map_mul σ b a).symm
   simp_rw [hmul]
   rw [trace_eq_sum_embeddings (E := ℂ)]
-  exact Fintype.sum_equiv RingHom.equivRatAlgHom (fun σ : K →+* ℂ => σ (b * a))
+  exact Fintype.sum_equiv (RingHom.equivRatAlgHom _ _) (fun σ : K →+* ℂ => σ (b * a))
     (fun φ : K →ₐ[ℚ] ℂ => φ (b * a)) (fun σ => rfl)
 
 /-- **Defining property of `T`**: on canonical-embedding images the trace form

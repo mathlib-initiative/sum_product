@@ -199,11 +199,11 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
   have hLO : ∀ 𝔭 ∈ G, 𝔭.LiesOver (Ideal.span {(p : ℤ)}) ∧ 𝔭.IsPrime :=
     fun 𝔭 h𝔭 => ⟨((IsDedekindDomain.mem_primesOverFinset_iff hpb (𝓞 K)).mp h𝔭).2,
       ((IsDedekindDomain.mem_primesOverFinset_iff hpb (𝓞 K)).mp h𝔭).1⟩
-  have hfpos : ∀ 𝔭 ∈ G, 0 < (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭 := by
+  have hfpos : ∀ 𝔭 ∈ G, 0 < (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭 := by
     intro 𝔭 h𝔭
     obtain ⟨hlo, hpr⟩ := hLO 𝔭 h𝔭
-    exact Nat.pos_of_ne_zero (Ideal.inertiaDeg_ne_zero _ _)
-  have hnorm𝔭 : ∀ 𝔭 ∈ G, Ideal.absNorm 𝔭 = p ^ ((Ideal.span {(p : ℤ)}).inertiaDeg 𝔭) := by
+    exact Nat.pos_of_ne_zero (Ideal.inertiaDeg'_ne_zero _ _)
+  have hnorm𝔭 : ∀ 𝔭 ∈ G, Ideal.absNorm 𝔭 = p ^ ((Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭) := by
     intro 𝔭 h𝔭
     obtain ⟨hlo, hpr⟩ := hLO 𝔭 h𝔭
     have := Ideal.absNorm_eq_pow_inertiaDeg 𝔭 hpZ
@@ -211,7 +211,7 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
   -- The injection `I ↦ (𝔭 ↦ v_𝔭(I)·f_𝔭)` supported on `G`.
   set Φ : {I : Ideal (𝓞 K) // Ideal.absNorm I = p ^ k} → (Ideal (𝓞 K) →₀ ℕ) :=
     fun I => Finsupp.indicator G
-      (fun 𝔭 _ => (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭) with hΦ
+      (fun 𝔭 _ => (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭) with hΦ
   -- All prime factors of `I` (norm `p^k`) lie in `G`, hence `count = 0` off `G`.
   have hcount_off : ∀ (I : Ideal (𝓞 K)), Ideal.absNorm I = p ^ k →
       ∀ 𝔭 ∉ G, (normalizedFactors I).count 𝔭 = 0 := by
@@ -220,7 +220,7 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
     exact h𝔭 (factor_mem_primesOverFinset hp hI (Multiset.count_pos.mp (Nat.pos_of_ne_zero h)))
   -- The key norm identity: `∑_{𝔭∈G} v_𝔭(I)·f_𝔭 = k`.
   have hsum : ∀ (I : {I : Ideal (𝓞 K) // Ideal.absNorm I = p ^ k}),
-      ∑ 𝔭 ∈ G, (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭 = k := by
+      ∑ 𝔭 ∈ G, (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭 = k := by
     rintro ⟨I, hI⟩
     have hI0 : I ≠ 0 := by
       rintro rfl
@@ -229,7 +229,7 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
     have habs : (Multiset.map Ideal.absNorm (normalizedFactors I)).prod = Ideal.absNorm I := by
       rw [← map_multiset_prod, prod_normalizedFactors_ideal hI0]
     have step1 : ∀ 𝔭 ∈ G, p ^ ((normalizedFactors I).count 𝔭 *
-        (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭) = Ideal.absNorm 𝔭 ^ (normalizedFactors I).count 𝔭 := by
+        (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭) = Ideal.absNorm 𝔭 ^ (normalizedFactors I).count 𝔭 := by
       intro 𝔭 h𝔭
       rw [hnorm𝔭 𝔭 h𝔭, ← pow_mul, mul_comm]
     have hsub : (normalizedFactors I).toFinset ⊆ G :=
@@ -239,9 +239,9 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
       intro 𝔭 _ h𝔭
       rw [Multiset.count_eq_zero.mpr (fun hmem => h𝔭 (Multiset.mem_toFinset.mpr hmem)), pow_zero]
     have hpow : p ^ (∑ 𝔭 ∈ G, (normalizedFactors I).count 𝔭 *
-        (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭) = p ^ k :=
-      calc p ^ (∑ 𝔭 ∈ G, (normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭)
-          = ∏ 𝔭 ∈ G, p ^ ((normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭) :=
+        (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭) = p ^ k :=
+      calc p ^ (∑ 𝔭 ∈ G, (normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭)
+          = ∏ 𝔭 ∈ G, p ^ ((normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭) :=
             (Finset.prod_pow_eq_pow_sum G _ p).symm
         _ = ∏ 𝔭 ∈ G, Ideal.absNorm 𝔭 ^ (normalizedFactors I).count 𝔭 := Finset.prod_congr rfl step1
         _ = ∏ 𝔭 ∈ (normalizedFactors I).toFinset, Ideal.absNorm 𝔭 ^ (normalizedFactors I).count 𝔭 :=
@@ -253,7 +253,7 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
     exact Nat.pow_right_injective hp.two_le hpow
   -- `Φ` lands in the antidiagonal.
   have hval : ∀ (I : {I : Ideal (𝓞 K) // Ideal.absNorm I = p ^ k}) 𝔭, 𝔭 ∈ G →
-      (Φ I) 𝔭 = (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭 := by
+      (Φ I) 𝔭 = (normalizedFactors I.1).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭 := by
     intro I 𝔭 h𝔭
     simp only [hΦ]
     exact Finsupp.indicator_of_mem h𝔭 _
@@ -280,8 +280,8 @@ lemma idealCount_prime_pow_le {K : Type*} [Field K] [NumberField K] {p : ℕ} (h
     have hcounts : normalizedFactors I = normalizedFactors J := by
       ext 𝔭
       by_cases h𝔭 : 𝔭 ∈ G
-      · have key : (normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭
-            = (normalizedFactors J).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg 𝔭 := by
+      · have key : (normalizedFactors I).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭
+            = (normalizedFactors J).count 𝔭 * (Ideal.span {(p : ℤ)}).inertiaDeg' 𝔭 := by
           have h2 := DFunLike.congr_fun hIJ 𝔭
           simpa only [hΦ, Finsupp.indicator_of_mem h𝔭] using h2
         exact Nat.eq_of_mul_eq_mul_right (hfpos 𝔭 h𝔭) key
