@@ -185,11 +185,10 @@ private lemma J_rec (N : ℕ) :
           (hasDerivAt_const u (1:ℝ)).sub (by simpa using hasDerivAt_pow 2 u)
         exact this.pow (N + 1)
       have h2 := (hasDerivAt_id u).mul h1
-      convert h2 using 1
-      simp only [hc, id_eq]
-      push_cast
-      rw [pow_succ]
-      ring
+      convert h2 using 1 <;>
+        first
+          | rfl
+          | (simp only [hc, id_eq]; push_cast; rw [pow_succ]; ring)
     have := intervalIntegral.integral_eq_sub_of_hasDerivAt hderiv ?_
     · rw [this]; simp
     · apply Continuous.intervalIntegrable
@@ -357,9 +356,8 @@ private lemma sin_ge_sub_cube {t : ℝ} (ht : 0 ≤ t) : t - t ^ 3 / 6 ≤ Real.
         have := (hasDerivAt_pow 3 x).div_const 6
         simpa using this
       have := (h1.sub h2).add h3
-      convert this using 1
-    convert this using 1
-    ring
+      convert this using 1 <;> rfl
+    convert this using 1 <;> first | rfl | ring
   have hgdiff : Differentiable ℝ g := fun x => (hderiv x).differentiableAt
   have hgderiv_nonneg : ∀ x, 0 ≤ deriv g x := by
     intro x

@@ -206,9 +206,11 @@ open NumberField NumberField.Units in
 theorem torsionOrder_eq_two_of_totallyReal {K : Type*} [Field K] [NumberField K]
     [NumberField.IsTotallyReal K] : torsionOrder K = 2 := by
   classical
+  let := Fintype.ofFinite (torsion K)
+  rw [torsionOrder, Nat.card_eq_fintype_card]
   refine (Finset.card_eq_two.2 ⟨1, ⟨-1, neg_one_mem_torsion⟩,
     by simp [← Subtype.coe_ne_coe], Finset.ext fun x ↦ ⟨fun _ ↦ ?_, fun _ ↦ Finset.mem_univ _⟩⟩)
-  simp only [Finset.mem_insert, Finset.mem_singleton, Subtype.ext_iff]
+  rw [Finset.mem_insert, Finset.mem_singleton, ← Subtype.val_inj, ← Subtype.val_inj]
   exact torsion_eq_pm_one_of_totallyReal x
 
 open scoped Classical in
@@ -234,7 +236,8 @@ theorem boxMult_card_le_two_mul_image {K : Type*} [Field K] [NumberField K]
       rw [← logEmbedding_eq_zero_iff]
       have he2 : Additive.ofMul (u * u₀⁻¹) = Additive.ofMul u - Additive.ofMul u₀ := rfl
       rw [he2, map_sub, hu.2, hu₀p, sub_self]
-    rw [← Finset.card_univ]
+    let := Fintype.ofFinite (torsion K)
+    rw [Nat.card_eq_fintype_card, ← Finset.card_univ]
     refine Finset.card_le_card_of_injOn
       (fun u => if h : u * u₀⁻¹ ∈ torsion K then (⟨u * u₀⁻¹, h⟩ : torsion K) else 1)
       (fun u _ => Finset.mem_univ _) ?_

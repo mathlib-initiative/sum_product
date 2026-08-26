@@ -662,7 +662,7 @@ private theorem lintegral_fin_nat_prod_eq_prod {n : ℕ} {E : Fin n → Type*}
         (MeasurableEquiv.measurableEmbedding _)]
       simp_rw [MeasurableEquiv.piFinSuccAbove_symm_apply, Fin.insertNthEquiv,
         Fin.prod_univ_succ, Fin.insertNth_zero, Equiv.coe_fn_mk, Fin.cons_succ,
-        Fin.zero_succAbove, cast_eq, Fin.cons_zero]
+        Fin.zero_succAbove, Fin.cons_zero]
       rw [← ih (fun i ↦ f (Fin.succ i)) (fun i ↦ hf _)]
       haveI : ∀ j : Fin n, SigmaFinite (μ j.succ) := fun j ↦ inferInstance
       have hpm := lintegral_prod_mul (μ := μ 0) (ν := Measure.pi fun i : Fin n ↦ μ i.succ)
@@ -1817,6 +1817,7 @@ theorem cone_integral_orbit_collapse (s : ℂ) (hs : 1 < s.re)
       = (Units.torsionOrder K : ℂ) * I K s *
           (Ideal.absNorm (Ideal.span {a₀}) : ℂ) ^ (-s) := by
   classical
+  haveI : Fintype (NumberField.Units.torsion K) := Fintype.ofFinite _
   -- The shift `σ a₀` and the whole-space integrand `F y = g(y·σ a₀)·|N y|^s`.
   set c₀ : mixedEmbedding.mixedSpace K :=
     mixedEmbedding K ((a₀ : RingOfIntegers K) : K) with hc₀
@@ -1992,7 +1993,8 @@ theorem cone_integral_orbit_collapse (s : ℂ) (hs : 1 < s.re)
         rw [tsum_fintype, Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
     _ = (Units.torsionOrder K : ℂ) * I K s
           * (Ideal.absNorm (Ideal.span {a₀}) : ℂ) ^ (-s) := by
-        rw [hV, show (Units.torsionOrder K : ℂ) = (Fintype.card (torsion K) : ℂ) from rfl]; ring
+        rw [hV, show (Units.torsionOrder K : ℂ) = (Fintype.card (torsion K) : ℂ) by
+          rw [Units.torsionOrder, Nat.card_eq_fintype_card]]; ring
 
 set_option maxHeartbeats 1600000 in
 variable {K} in

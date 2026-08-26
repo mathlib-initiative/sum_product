@@ -508,7 +508,10 @@ theorem setLIntegral_cone_eq_collar_radial (h : mixedSpace K → ℝ≥0∞)
                 (mixedEmbedding.norm y) ∂(DedekindZeta.mixedMulHaar K) := by
           rw [lintegral_congr hpt, ← lintegral_indicator hcone_meas,
             Set.indicator_indicator, lintegral_indicator (hcone_meas.inter hS_meas)]
-        rw [hcs, ← lintegral_mul_const (ENNReal.ofReal t⁻¹) (hh.mul hindmeas)]
+        rw [hcs, ← lintegral_mul_const (ENNReal.ofReal t⁻¹)
+          (show Measurable fun y => h y *
+              (Set.Ioc t (Real.exp 1 * t)).indicator (1 : ℝ → ℝ≥0∞)
+                (mixedEmbedding.norm y) from hh.mul hindmeas)]
         exact lintegral_congr (fun y => by rw [mul_assoc])
     -- step: Tonelli swap `t` and `y`
     _ = ∫⁻ y in mixedEmbedding.fundamentalCone K,
@@ -523,7 +526,10 @@ theorem setLIntegral_cone_eq_collar_radial (h : mixedSpace K → ℝ≥0∞)
           ∂(DedekindZeta.mixedMulHaar K) := by
         refine lintegral_congr (fun y => ?_)
         rw [lintegral_const_mul (h y)
-            ((hg1_meas (mixedEmbedding.norm y)).mul (measurable_inv.ennreal_ofReal))]
+            (show Measurable fun t : ℝ =>
+                (Set.Ioc t (Real.exp 1 * t)).indicator (1 : ℝ → ℝ≥0∞)
+                    (mixedEmbedding.norm y) * ENNReal.ofReal t⁻¹ from
+              (hg1_meas (mixedEmbedding.norm y)).mul (measurable_inv.ennreal_ofReal))]
         congr 1
         rw [show (fun t => (Set.Ioc t (Real.exp 1 * t)).indicator (1 : ℝ → ℝ≥0∞)
                 (mixedEmbedding.norm y) * ENNReal.ofReal t⁻¹)
@@ -609,7 +615,7 @@ theorem setLIntegral_cone_eq_radial (h : mixedSpace K → ℝ≥0∞) (hh : Meas
     intro r hr
     have hgσ : Measurable (fun σ : mixedSpace K => h (radialMap K r σ)) := by
       have hcont : Continuous (fun σ : mixedSpace K => radialMap K r σ) := by
-        simp only [radialMap]; exact continuous_const.smul continuous_id
+        simp only [radialMap]; fun_prop
       exact hh.comp hcont.measurable
     rw [show (surfaceMeasure K).restrict (normEqOneSurface K) = surfaceMeasure K from
           Measure.restrict_eq_self_of_ae_mem
@@ -771,7 +777,10 @@ theorem mixedMulHaar_restrict_cone_eq_map :
   rw [setLIntegral_cone_eq_radial h hh, lintegral_map hh hF,
     lintegral_withDensity_eq_lintegral_mul _ hdens hmprod]
   simp only [Pi.mul_apply]
-  rw [lintegral_prod _ ((hdens.mul hmprod).aemeasurable)]
+  rw [lintegral_prod _
+    (show AEMeasurable (fun a : ℝ × mixedSpace K =>
+        ENNReal.ofReal a.1⁻¹ * h (radialMap K a.1 a.2)) _ from
+      (hdens.mul hmprod).aemeasurable)]
   refine lintegral_congr (fun r => ?_)
   dsimp only
   -- The inner `σ`-integral: pull out the constant `ofReal r⁻¹` and extend the

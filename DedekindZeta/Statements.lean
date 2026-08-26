@@ -1757,8 +1757,9 @@ theorem integrable_mixedGaussian_mellin_of_perPlace {s : ℂ} (hs : 0 < s.re)
   refine hFint.mono' ?_ ?_
   · apply Measurable.aestronglyMeasurable
     apply Measurable.smul
-    · exact (((measurable_const.mul
-        ((mixedEmbedding.continuous_norm K).measurable.inv))).ennreal_ofReal).ennreal_toReal
+    · exact Complex.measurable_ofReal.comp
+        ((((measurable_const.mul
+          ((mixedEmbedding.continuous_norm K).measurable.inv))).ennreal_ofReal).ennreal_toReal)
     · apply Measurable.mul
       · refine Complex.measurable_ofReal.comp ?_
         have : Measurable fun x : mixedEmbedding.mixedSpace K => Theta.mixedGaussian K x := by
@@ -2253,7 +2254,7 @@ theorem orbitIdeal_fibre_aux (I : FractionalIdeal (𝓞 K)⁰ K)
     calc Nat.card {o // ψ o = J}
         ≤ Nat.card (NumberField.Units.torsion K) :=
           Nat.card_le_card_of_injective ζfun hΦinj
-      _ = NumberField.Units.torsionOrder K := by rw [Nat.card_eq_fintype_card]; rfl
+      _ = NumberField.Units.torsionOrder K := rfl
   · -- Empty fibre.
     haveI : IsEmpty {o // ψ o = J} := not_nonempty_iff.mp hne
     exact ⟨inferInstance, by

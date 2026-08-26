@@ -1226,10 +1226,13 @@ theorem periodisation_eq_tsum_fourier (x : V) :
     have hgcont : Continuous
         (fun θ : Fin d → AddCircle (1 : ℝ) =>
           (∏ i, (starRingEnd ℂ) (fourier (dualLatticeEquiv L b w i) (θ i))) • Fp θ) := by
-      refine Continuous.smul (continuous_finset_prod Finset.univ ?_) hcont
-      intro i _
-      exact Complex.continuous_conj.comp
-        ((fourier (dualLatticeEquiv L b w i)).continuous.comp (continuous_apply i))
+      have hprod : Continuous
+          (fun θ : Fin d → AddCircle (1 : ℝ) =>
+            ∏ i, (starRingEnd ℂ) (fourier (dualLatticeEquiv L b w i) (θ i))) := by
+        refine continuous_finsetProd Finset.univ fun i _ => ?_
+        exact Complex.continuous_conj.comp
+          ((fourier (dualLatticeEquiv L b w i)).continuous.comp (continuous_apply i))
+      exact hprod.smul hcont
     have hgint : Integrable
         (fun θ : Fin d → AddCircle (1 : ℝ) =>
           (∏ i, (starRingEnd ℂ) (fourier (dualLatticeEquiv L b w i) (θ i))) • Fp θ) :=
